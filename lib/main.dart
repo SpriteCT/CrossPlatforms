@@ -30,15 +30,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
-  List<String> page2texts = [];
+
+  List<String> texts = [];
   TextEditingController _page2Controller = TextEditingController();
 
   void addtext(){
     String text = _page2Controller.text;
     if (text.isNotEmpty){
       setState(() {
-        page2texts.add(text);
+        texts.add(text);
         _page2Controller.clear();
+      });
+    }
+  }
+  void deletetext(item){
+    if (texts.contains(item)){
+      setState(() {
+        texts.remove(item);
       });
     }
   }
@@ -51,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
               currentPageIndex = index;
             });
           },
+          selectedIndex: currentPageIndex,
+          indicatorColor: Colors.purple,
           destinations: const <Widget>[
             NavigationDestination(
                 icon: Icon(Icons.account_box), label: 'Page 1'),
@@ -67,12 +77,63 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: <Widget>[
-        const Text("""INDEX 0
-        Саранцев Антон Игоревич
-              БСБО-12-22
-              22Б0745"""),
+        Column(
+          children: [
+            Column(
+                children: [
+                  Text("Column"),
+                  TextFormField(
+                    controller: _page2Controller,
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                  ),
+                  TextButton(
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                    ),
+                    onPressed: addtext,
+                    child: Text('Добавить элемент'),
+                  )
+                ]),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: texts.map((item) => TextButton(
+                child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(item)),
+                onPressed:() {deletetext(item);},
+              )).toList(),
+            )
+          ]
+        ),
+        Column(
+            children: <Widget>[
+              Text("ListView"),
+              TextFormField(
+                controller: _page2Controller,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+              ),
+              TextButton(
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                ),
+                onPressed: addtext,
+                child: Text('Добавить элемент'),
+              ),
+              ListView(
+                shrinkWrap: true,
+                children: texts.map((item) => GestureDetector(
+                    key:ValueKey(item),
+                    onTap: () => deletetext(item),
+                    child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(item, textAlign: TextAlign.center))
+                )).toList(),
+              )
+            ]
+        ),
         Column(
           children: <Widget>[
+            Text("ListView.separated"),
             TextFormField(
               controller: _page2Controller,
               decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -84,21 +145,21 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: addtext,
               child: Text('Добавить элемент'),
             ),
-            ListView.builder(
-                itemCount: page2texts.length,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index){
-                  return Align(
-
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(page2texts[index]))
-                  );
-                }
-            )]
-        ),
-        const Text('INDEX 2')
+            ListView.separated(
+              itemCount: texts.length,
+              padding: EdgeInsets.all(16.0),
+              shrinkWrap: true,
+              separatorBuilder: (BuildContext context, int index){
+                return Divider(height: 20, color: Colors.deepPurple,  thickness: 1);
+                },
+              itemBuilder: (BuildContext context, int index){
+                return TextButton(
+                    child: Text(texts[index]),
+                    onPressed: () {deletetext(texts[index]);}
+                );},
+            )
+          ],
+        )
       ][currentPageIndex],
     );
   }
